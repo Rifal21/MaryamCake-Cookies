@@ -11,6 +11,9 @@ use Illuminate\Support\Str;
 use App\Exports\ProductsExport;
 use App\Imports\ProductsImport;
 use Maatwebsite\Excel\Facades\Excel;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -63,8 +66,14 @@ class ProductController extends Controller
         $data['is_premium'] = $request->has('is_premium');
 
         if ($request->hasFile('image_file')) {
-            $path = $request->file('image_file')->store('products', 'public');
-            $data['image'] = 'storage/' . $path;
+            $manager = new ImageManager(new Driver());
+            $image = $manager->read($request->file('image_file'));
+            $encoded = $image->toJpeg(80);
+
+            $filename = 'products/' . uniqid() . '.jpg';
+            Storage::disk('public')->put($filename, $encoded);
+
+            $data['image'] = 'storage/' . $filename;
         }
 
         Product::create($data);
@@ -86,7 +95,7 @@ class ProductController extends Controller
             'price' => 'required|integer',
             'stock' => 'required|integer',
             'description' => 'nullable|string',
-            'image_file' => 'nullable|image|max:2048',
+            'image_file' => 'nullable|image|max:10240',
         ]);
 
         $data = $request->except('image_file');
@@ -94,8 +103,22 @@ class ProductController extends Controller
         $data['is_premium'] = $request->has('is_premium');
 
         if ($request->hasFile('image_file')) {
-            $path = $request->file('image_file')->store('products', 'public');
-            $data['image'] = 'storage/' . $path;
+            // Delete old image if exists
+            if ($product->image) {
+                $oldPath = str_replace('storage/', '', $product->image);
+                if (Storage::disk('public')->exists($oldPath)) {
+                    Storage::disk('public')->delete($oldPath);
+                }
+            }
+
+            $manager = new ImageManager(new Driver());
+            $image = $manager->read($request->file('image_file'));
+            $encoded = $image->toJpeg(80);
+
+            $filename = 'products/' . uniqid() . '.jpg';
+            Storage::disk('public')->put($filename, $encoded);
+
+            $data['image'] = 'storage/' . $filename;
         }
 
         $product->update($data);
