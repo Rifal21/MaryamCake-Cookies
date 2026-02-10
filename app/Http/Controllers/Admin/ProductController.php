@@ -54,7 +54,7 @@ class ProductController extends Controller
             'price' => 'required|integer',
             'stock' => 'required|integer',
             'description' => 'nullable|string',
-            'image_file' => 'nullable|image|max:2048',
+            'image_file' => 'nullable|image|max:10240',
         ]);
 
         $data = $request->except('image_file');
