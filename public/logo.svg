@@ -1,0 +1,32 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Sophisticated Background Gradient Ring -->
+    <defs>
+        <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#D4AF37;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#B8860B;stop-opacity:1" />
+        </linearGradient>
+    </defs>
+
+    <!-- Outer Decorative Ring -->
+    <circle cx="50" cy="50" r="46" stroke="url(#goldGradient)" stroke-width="0.5" stroke-dasharray="2 2"/>
+    <circle cx="50" cy="50" r="42" stroke="#4A3728" stroke-width="1" opacity="0.1"/>
+
+    <!-- Artistic Cake/Cupcake Silhouette -->
+    <!-- Base -->
+    <path d="M35 60C35 60 38 75 50 75C62 75 65 60 65 60H35Z" fill="#8B5E3C" opacity="0.8"/>
+    <!-- Frosting/Cream -->
+    <path d="M32 60C32 55 35 50 50 50C65 50 68 55 68 60C68 60 60 63 50 63C40 63 32 60 32 60Z" fill="url(#goldGradient)"/>
+    <path d="M40 50C40 45 42 40 50 40C58 40 60 45 60 50" fill="url(#goldGradient)" opacity="0.6"/>
+    <!-- Cherry/Topping -->
+    <circle cx="50" cy="38" r="4" fill="#4A3728"/>
+
+    <!-- Flourish/Artisanal Lines -->
+    <path d="M25 50C20 40 30 30 50 30C70 30 80 40 75 50" stroke="url(#goldGradient)" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+    
+    <!-- Elegant "M" script -->
+    <path d="M42 68L48 62L52 68L58 62" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Sparkles -->
+    <path d="M75 25L77 28L80 25L77 22L75 25Z" fill="#D4AF37"/>
+    <path d="M20 70L22 73L25 70L22 67L20 70Z" fill="#D4AF37"/>
+</svg>
