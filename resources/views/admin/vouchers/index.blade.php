@@ -99,7 +99,7 @@
                                 <form action="{{ route('admin.vouchers.destroy', $voucher) }}" method="POST"
                                     class="inline">
                                     @csrf @method('DELETE')
-                                    <button type="submit" onclick="return confirm('Delete this voucher?')"
+                                    <button type="submit" onclick="return confirmDelete(event, 'Delete this voucher?')"
                                         class="inline-flex items-center justify-center p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all shadow-sm">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

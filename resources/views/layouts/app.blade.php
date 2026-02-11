@@ -50,10 +50,10 @@
 </head>
 
 <body class="h-full antialiased text-[#4A3728]">
-    <div x-data="{ sidebarOpen: false }" class="min-h-screen bg-[#FDFBF7] flex">
+    <div x-data="{ sidebarOpen: false }" class="h-screen bg-[#FDFBF7] flex overflow-hidden">
         <!-- Sidebar -->
         <aside
-            class="fixed inset-y-0 left-0 z-50 w-64 sidebar-gradient text-white transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:inset-0"
+            class="fixed inset-y-0 left-0 z-50 w-64 sidebar-gradient text-white transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:inset-0 shadow-2xl md:relative"
             :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
 
             <div class="h-full flex flex-col">
@@ -187,18 +187,89 @@
             <!-- Page Content -->
             <main class="flex-1 overflow-y-auto bg-[#FDFBF7] p-8">
                 <div class="max-w-7xl mx-auto">
-                    @if (session('success'))
-                        <div
-                            class="mb-8 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded-r-xl shadow-sm animate-bounce">
-                            <p class="font-bold">{{ session('success') }}</p>
-                        </div>
-                    @endif
-
                     {{ $slot }}
                 </div>
             </main>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Flash Messages
+            @if (session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: @json(session('success')),
+                    confirmButtonColor: '#D4AF37',
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            @endif
+
+            @if (session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: @json(session('error')),
+                    confirmButtonColor: '#d33',
+                });
+            @endif
+
+            @if (session('warning'))
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Warning!',
+                    text: @json(session('warning')),
+                    confirmButtonColor: '#D4AF37',
+                });
+            @endif
+
+            @if (session('info'))
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Info',
+                    text: @json(session('info')),
+                    confirmButtonColor: '#D4AF37',
+                });
+            @endif
+
+            // Validation Errors
+            @if ($errors->any())
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Whoops! Something went wrong.',
+                    html: `
+                        <div class="text-left text-sm">
+                            @foreach ($errors->all() as $error)
+                                <p class="mb-1">• {{ $error }}</p>
+                            @endforeach
+                        </div>
+                    `,
+                    confirmButtonColor: '#d33',
+                });
+            @endif
+        });
+
+        // Global Delete Confirmation
+        window.confirmDelete = function(e, message) {
+            e.preventDefault();
+            let form = e.target.closest('form');
+            Swal.fire({
+                title: 'Are you sure?',
+                text: message || "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#D4AF37',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+            return false;
+        };
+    </script>
 </body>
 
 </html>

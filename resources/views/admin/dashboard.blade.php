@@ -2,8 +2,8 @@
     @section('header_title', __('Dashboard Overview'))
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
-        <div class="card-premium p-8 rounded-[2rem] relative overflow-hidden group">
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+        <div class="card-premium p-6 rounded-[2rem] relative overflow-hidden group">
             <div
                 class="absolute -right-4 -top-4 w-24 h-24 bg-blue-50 rounded-full group-hover:scale-150 transition-transform duration-500">
             </div>
@@ -17,7 +17,7 @@
             </div>
         </div>
 
-        <div class="card-premium p-8 rounded-[2rem] relative overflow-hidden group">
+        <div class="card-premium p-6 rounded-[2rem] relative overflow-hidden group">
             <div
                 class="absolute -right-4 -top-4 w-24 h-24 bg-yellow-50 rounded-full group-hover:scale-150 transition-transform duration-500">
             </div>
@@ -30,7 +30,7 @@
             </div>
         </div>
 
-        <div class="card-premium p-8 rounded-[2rem] relative overflow-hidden group">
+        <div class="card-premium p-6 rounded-[2rem] relative overflow-hidden group">
             <div
                 class="absolute -right-4 -top-4 w-24 h-24 bg-green-50 rounded-full group-hover:scale-150 transition-transform duration-500">
             </div>
@@ -43,7 +43,7 @@
             </div>
         </div>
 
-        <div class="card-premium p-8 rounded-[2rem] relative overflow-hidden group">
+        <div class="card-premium p-6 rounded-[2rem] relative overflow-hidden group">
             <div
                 class="absolute -right-4 -top-4 w-24 h-24 bg-purple-50 rounded-full group-hover:scale-150 transition-transform duration-500">
             </div>
@@ -67,9 +67,9 @@
     </div>
 
     <!-- Main Content Grid -->
-    <div class="grid lg:grid-cols-3 gap-10">
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
         <!-- Recent Orders Table -->
-        <div class="lg:col-span-2">
+        <div class="xl:col-span-2">
             <div class="card-premium rounded-[2rem] overflow-hidden">
                 <div class="p-8 border-b border-[#8B5E3C]/5 flex justify-between items-center bg-gray-50/50">
                     <h3 class="text-lg font-black text-[#4A3728]">{{ __('Recent Orders') }}</h3>
@@ -133,7 +133,7 @@
         </div>
 
         <!-- Right Column / Tools -->
-        <div class="space-y-10">
+        <div class="space-y-8">
             <!-- Top Selling Products -->
             <div class="card-premium rounded-[2rem] p-8">
                 <h3 class="text-lg font-black text-[#4A3728] mb-6">{{ __('Top Selling') }}</h3>

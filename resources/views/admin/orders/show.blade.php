@@ -309,10 +309,20 @@
                     document.getElementById('lat-input').value = position.coords.latitude.toFixed(8);
                     document.getElementById('lng-input').value = position.coords.longitude.toFixed(8);
                 }, function(error) {
-                    alert('Error getting location: ' + error.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Geolocation Error',
+                        text: 'Error getting location: ' + error.message,
+                        confirmButtonColor: '#d33'
+                    });
                 });
             } else {
-                alert('Geolocation is not supported by this browser.');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Not Supported',
+                    text: 'Geolocation is not supported by this browser.',
+                    confirmButtonColor: '#D4AF37'
+                });
             }
         }
     </script>
