@@ -57,6 +57,10 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
     // Payments
     Route::resource('payments', \App\Http\Controllers\Admin\PaymentMethodController::class);
+
+    // Settings
+    Route::get('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('settings.index');
+    Route::post('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('settings.update');
 });
 
 Route::post('/vouchers/check', [LandingController::class, 'checkVoucher'])->name('vouchers.check');

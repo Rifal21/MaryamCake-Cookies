@@ -66,6 +66,7 @@ class LandingController extends Controller
 
                 $paymentMethodObj = \App\Models\PaymentMethod::where('name', $request->payment_method)->first();
                 $adminFee = $paymentMethodObj ? $paymentMethodObj->admin_fee : 0;
+                $shippingFee = \App\Models\Setting::getValue('shipping_cost', 0); // Get shipping fee
 
                 $voucher = null;
                 $discountAmount = 0;
@@ -77,12 +78,13 @@ class LandingController extends Controller
                     }
                 }
 
-                $finalTotal = max(0, $totalPrice - $discountAmount + $adminFee);
+                $finalTotal = max(0, $totalPrice - $discountAmount + $adminFee + $shippingFee); // Include shipping fee
 
                 $order->update([
                     'total_price' => $finalTotal,
                     'discount_amount' => $discountAmount,
                     'admin_fee' => $adminFee,
+                    'shipping_fee' => $shippingFee, // Store shipping fee
                     'voucher_id' => $voucher?->id,
                     'voucher_code' => $voucher?->code,
                 ]);

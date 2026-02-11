@@ -852,6 +852,11 @@
                                 <p>{{ __('Admin Fee') }}</p>
                                 <p x-text="'+ ' + formatPrice(adminFee)"></p>
                             </div>
+                            <div x-show="shippingCost > 0"
+                                class="flex justify-between text-sm font-bold text-[#8B5E3C]">
+                                <p>{{ __('Shipping Fee') }}</p>
+                                <p x-text="'+ ' + formatPrice(shippingCost)"></p>
+                            </div>
                             <div
                                 class="flex justify-between text-2xl font-bold text-[#4A3728] pt-4 border-t border-[#8B5E3C]/5">
                                 <p>{{ __('Total') }}</p>
@@ -859,9 +864,12 @@
                             </div>
                         </div>
 
-                        <p class="mt-0.5 text-sm text-[#6B4F3A] mb-8 italic text-center">Delivery costs and tax
-                            will be
-                            calculated later.</p>
+                        <p class="mt-0.5 text-sm text-[#6B4F3A] mb-8 italic text-center" x-show="shippingCost > 0">
+                            {{ __('Flat rate shipping fee applied.') }}
+                        </p>
+                        <p class="mt-0.5 text-sm text-[#6B4F3A] mb-8 italic text-center" x-show="shippingCost == 0">
+                            {{ __('Free shipping applied.') }}
+                        </p>
                         <div class="mt-6">
                             <button @click="checkout()"
                                 class="w-full flex justify-center items-center px-6 py-4 rounded-full shadow-lg gold-pill text-xl font-bold text-white transition-transform hover:scale-[1.02]">
@@ -1032,6 +1040,7 @@
                 discount: 0,
                 selectedPayment: '',
                 paymentMethods: @json($paymentMethods),
+                shippingCost: {{ \App\Models\Setting::getValue('shipping_cost', 0) }},
 
                 init() {
                     const savedCart = localStorage.getItem('maryam_cart');
@@ -1144,7 +1153,7 @@
                 },
 
                 get totalPrice() {
-                    return Math.max(0, this.subtotal - this.discount + this.adminFee);
+                    return Math.max(0, this.subtotal - this.discount + this.adminFee + this.shippingCost);
                 },
 
                 formatPrice(price) {

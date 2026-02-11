@@ -241,6 +241,16 @@
                         </td>
                     </tr>
                 @endif
+                @if ($order->shipping_fee > 0)
+                    <tr>
+                        <td colspan="3" style="text-align: right; border: none; color: #8B5E3C; font-size: 11px;">
+                            {{ __('Shipping Fee') }}
+                        </td>
+                        <td style="text-align: right; border: none; color: #8B5E3C;">
+                            + Rp {{ number_format($order->shipping_fee, 0, ',', '.') }}
+                        </td>
+                    </tr>
+                @endif
                 <tr class="total-row">
                     <td colspan="3" style="border-top: 1px solid #8B5E3C; text-align: right; padding-top: 8px;">
                         {{ __('Total') }}</td>

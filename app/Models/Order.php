@@ -25,7 +25,8 @@ class Order extends Model
         'discount_amount',
         'payment_method_name',
         'payment_status',
-        'admin_fee'
+        'admin_fee',
+        'shipping_fee'
     ];
 
     public function items(): HasMany
