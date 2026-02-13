@@ -2,7 +2,36 @@
     @section('header_title', __('Dashboard Overview'))
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-6 mb-8">
+        <!-- Realtime Visitors -->
+        <div class="card-premium p-6 rounded-[2rem] relative overflow-hidden group" x-data="{ visitors: 0 }"
+            x-init="const fetchVisitors = () => {
+                fetch('{{ route('admin.stats.visitors') }}')
+                    .then(res => res.json())
+                    .then(data => visitors = data.visitors);
+            };
+            fetchVisitors();
+            setInterval(fetchVisitors, 3000);">
+            <div
+                class="absolute -right-4 -top-4 w-24 h-24 bg-red-50 rounded-full group-hover:scale-150 transition-transform duration-500">
+            </div>
+            <div class="relative z-10 flex flex-col h-full">
+                <div class="flex items-center justify-between mb-2">
+                    <span
+                        class="text-[#8B5E3C]/60 text-sm font-bold uppercase tracking-widest">{{ __('Live Visitors') }}</span>
+                    <span class="relative flex h-3 w-3">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                    </span>
+                </div>
+                <span class="text-4xl font-black mt-2 text-red-600" x-text="visitors">0</span>
+                <div class="mt-4 flex items-center text-red-600 text-sm font-bold">
+                    <span>{{ __('Online right now') }}</span>
+                </div>
+            </div>
+        </div>
+
         <div class="card-premium p-6 rounded-[2rem] relative overflow-hidden group">
             <div
                 class="absolute -right-4 -top-4 w-24 h-24 bg-blue-50 rounded-full group-hover:scale-150 transition-transform duration-500">

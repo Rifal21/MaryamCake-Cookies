@@ -13,6 +13,13 @@ Route::get('/track/{order_number}', [\App\Http\Controllers\OrderTrackingControll
 Route::post('/track', [\App\Http\Controllers\OrderTrackingController::class, 'show'])->name('tracking.show');
 Route::get('/track/{order}/status', [\App\Http\Controllers\OrderTrackingController::class, 'getStatus'])->name('tracking.status');
 
+// Public Stats
+Route::get('/api/stats/visitors', function () {
+    return response()->json([
+        'visitors' => \App\Models\SiteVisit::where('last_activity_at', '>=', now()->subMinutes(5))->count()
+    ]);
+})->name('public.stats.visitors');
+
 Route::get('/lang/{locale}', function ($locale) {
     if (in_array($locale, ['en', 'id'])) {
         session(['locale' => $locale]);
@@ -61,6 +68,13 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     // Settings
     Route::get('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('settings.index');
     Route::post('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('settings.update');
+
+    // Stats
+    Route::get('/stats/visitors', function () {
+        return response()->json([
+            'visitors' => \App\Models\SiteVisit::where('last_activity_at', '>=', now()->subMinutes(5))->count()
+        ]);
+    })->name('stats.visitors');
 });
 
 Route::post('/vouchers/check', [LandingController::class, 'checkVoucher'])->name('vouchers.check');
