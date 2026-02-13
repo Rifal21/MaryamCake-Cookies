@@ -19,8 +19,9 @@ class TrackVisitors
         if (!$request->is('admin*')) {
             try {
                 \App\Models\SiteVisit::updateOrCreate(
-                    ['ip_address' => $request->ip()],
+                    ['session_id' => session()->getId()], // Updated to session ID
                     [
+                        'ip_address' => $request->ip(), // Now just a tracked attribute
                         'user_agent' => $request->userAgent(),
                         'last_activity_at' => now(),
                     ]

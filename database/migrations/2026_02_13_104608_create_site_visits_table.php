@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('site_visits', function (Blueprint $table) {
             $table->id();
-            $table->string('ip_address')->unique();
+            $table->string('session_id')->unique(); // Session ID as unique identifier
+            $table->string('ip_address')->nullable();
             $table->string('user_agent')->nullable();
             $table->timestamp('last_activity_at');
             $table->timestamps();
