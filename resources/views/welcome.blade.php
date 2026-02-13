@@ -59,6 +59,11 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
     </style>
+    <!-- Leaflet Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 </head>
 
 <body x-data="cartApp()" x-init="init()" class="antialiased text-[#4A3728]">
@@ -134,8 +139,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 6h16M4 12h16m-7 6h7" />
                         </svg>
-                        <svg x-show="mobileMenuOpen" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
+                        <svg x-show="mobileMenuOpen" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -1193,18 +1198,94 @@
                                     <input id="swal-input2" class="swal2-input w-full m-0 rounded-xl border-[#8B5E3C]/20" placeholder="08123456789">
                                 </div>
                                 <div>
+                                    <label class="block text-sm font-bold text-[#8B5E3C] mb-1">Lokasi Pengiriman</label>
+                                    <div id="map" style="height: 200px; width: 100%; border-radius: 0.75rem; border: 1px solid rgba(139, 94, 60, 0.2); z-index: 0;"></div>
+                                    <button type="button" id="btn-location" class="mt-2 px-4 py-2 bg-[#8B5E3C] text-white text-xs font-bold rounded-lg hover:bg-[#D4AF37] transition-colors flex items-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        Gunakan Lokasi Saat Ini
+                                    </button>
+                                </div>
+                                <div>
                                     <label class="block text-sm font-bold text-[#8B5E3C] mb-1">Alamat Lengkap</label>
                                     <textarea id="swal-input3" class="swal2-textarea w-full m-0 rounded-xl border-[#8B5E3C]/20" style="height: 100px;" placeholder="Jl. Mawar No. 123, Jakarta"></textarea>
+                                    <input type="hidden" id="swal-input-lat">
+                                    <input type="hidden" id="swal-input-lng">
                                 </div>
                             </div>`,
                         focusConfirm: false,
                         showCancelButton: true,
                         confirmButtonText: 'Konfirmasi Pesanan',
                         confirmButtonColor: '#4A3728',
+                        didOpen: () => {
+                            // Initialize Map
+                            const map = L.map('map').setView([-6.2088, 106.8456], 13); // Default Jakarta
+                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                attribution: '© OpenStreetMap contributors'
+                            }).addTo(map);
+
+                            let marker;
+
+                            const updateMarker = (lat, lng) => {
+                                if (marker) {
+                                    marker.setLatLng([lat, lng]);
+                                } else {
+                                    marker = L.marker([lat, lng]).addTo(map);
+                                }
+                                map.setView([lat, lng], 16);
+                                document.getElementById('swal-input-lat').value = lat;
+                                document.getElementById('swal-input-lng').value = lng;
+
+                                // Reverse Geocode
+                                Swal.showLoading();
+                                fetch(
+                                        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+                                    )
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        Swal.hideLoading();
+                                        if (data && data.display_name) {
+                                            document.getElementById('swal-input3').value = data
+                                                .display_name;
+                                        }
+                                    })
+                                    .catch(() => {
+                                        Swal.hideLoading();
+                                    });
+                            };
+
+                            map.on('click', function(e) {
+                                updateMarker(e.latlng.lat, e.latlng.lng);
+                            });
+
+                            document.getElementById('btn-location').addEventListener('click', () => {
+                                if (navigator.geolocation) {
+                                    Swal.showLoading();
+                                    navigator.geolocation.getCurrentPosition((position) => {
+                                        Swal.hideLoading();
+                                        updateMarker(position.coords.latitude, position
+                                            .coords
+                                            .longitude);
+                                    }, (error) => {
+                                        Swal.hideLoading();
+                                        Swal.showValidationMessage(
+                                            'Gagal mendapatkan lokasi: ' +
+                                            error.message);
+                                    });
+                                } else {
+                                    Swal.showValidationMessage(
+                                        'Geolocation tidak didukung browser ini.');
+                                }
+                            });
+                        },
                         preConfirm: () => {
                             const name = document.getElementById('swal-input1').value;
                             const phone = document.getElementById('swal-input2').value;
                             const address = document.getElementById('swal-input3').value;
+                            const lat = document.getElementById('swal-input-lat').value;
+                            const lng = document.getElementById('swal-input-lng').value;
 
                             if (!name || !phone || !address) {
                                 Swal.showValidationMessage('Semua data harus diisi');
@@ -1213,7 +1294,9 @@
                             return {
                                 name,
                                 phone,
-                                address
+                                address,
+                                lat,
+                                lng
                             };
                         }
                     });
@@ -1241,7 +1324,9 @@
                                     address: formValues.address,
                                     cart: this.cart,
                                     voucher_code: this.appliedVoucher,
-                                    payment_method: this.selectedPayment
+                                    payment_method: this.selectedPayment,
+                                    latitude: formValues.lat,
+                                    longitude: formValues.lng
                                 })
                             });
 

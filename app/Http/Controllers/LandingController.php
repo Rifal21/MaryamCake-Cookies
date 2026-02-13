@@ -43,6 +43,8 @@ class LandingController extends Controller
                     'customer_name' => $request->customer_name,
                     'customer_phone' => $request->customer_phone,
                     'address' => $request->address,
+                    'latitude' => $request->latitude,
+                    'longitude' => $request->longitude,
                     'total_price' => 0, // Will update after items
                     'status' => 'pending',
                     'payment_method_name' => $request->payment_method,
@@ -120,7 +122,7 @@ class LandingController extends Controller
 
         $pdf = Pdf::loadView('invoice.pdf', compact('order', 'paymentMethod'));
 
-        return $pdf->stream('Invoice-' . $order->order_number . '.pdf');
+        return $pdf->download('Invoice-' . $order->order_number . '.pdf');
     }
 
     public function checkVoucher(Request $request)
