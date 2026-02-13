@@ -698,17 +698,17 @@
     setInterval(fetchVisitors, 5000);" x-show="show && visitors > 0"
         x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 translate-y-10"
         x-transition:enter-end="opacity-100 translate-y-0"
-        class="fixed bottom-6 right-6 z-40 bg-white/90 backdrop-blur-md rounded-full shadow-2xl border border-[#D4AF37]/20 p-2 pr-5 flex items-center gap-3 animate-bounce-slow hover:scale-105 transition-transform cursor-default select-none">
+        class="fixed bottom-4 right-4 z-40 bg-white/90 backdrop-blur-md rounded-full shadow-lg border border-[#D4AF37]/20 p-1.5 pr-4 flex items-center gap-2 animate-bounce-slow hover:scale-105 transition-transform cursor-default select-none scale-90 origin-bottom-right">
 
-        <div class="relative w-10 h-10 flex items-center justify-center bg-red-50 rounded-full">
+        <div class="relative w-8 h-8 flex items-center justify-center bg-red-50 rounded-full">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-20"></span>
-            <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
         </div>
 
         <div class="flex flex-col">
-            <span class="text-xs font-bold text-[#8B5E3C]/60 uppercase tracking-widest leading-none mb-0.5">Sedang
+            <span class="text-[10px] font-bold text-[#8B5E3C]/60 uppercase tracking-widest leading-none mb-0.5">Sedang
                 Belanja</span>
-            <span class="text-sm font-black text-[#4A3728]">
+            <span class="text-xs font-black text-[#4A3728]">
                 <span x-text="visitors" class="text-red-600"></span>
                 orang aktif
             </span>
