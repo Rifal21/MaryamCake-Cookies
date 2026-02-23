@@ -31,6 +31,8 @@ class LandingController extends Controller
             'cart' => 'required|array',
             'voucher_code' => 'nullable|string',
             'payment_method' => 'required|string',
+            'is_preorder' => 'nullable|boolean',
+            'delivery_date' => 'nullable|date',
         ]);
 
         try {
@@ -45,6 +47,8 @@ class LandingController extends Controller
                     'address' => $request->address,
                     'latitude' => $request->latitude,
                     'longitude' => $request->longitude,
+                    'is_preorder' => $request->boolean('is_preorder'),
+                    'delivery_date' => $request->delivery_date,
                     'total_price' => 0, // Will update after items
                     'status' => 'pending',
                     'payment_method_name' => $request->payment_method,
@@ -94,6 +98,9 @@ class LandingController extends Controller
                 if ($voucher) {
                     $voucher->increment('used_count');
                 }
+
+                // Dispatch WhatsApp Notification Job (Background)
+                \App\Jobs\SendWhatsAppOrderNotification::dispatch($order);
 
                 return response()->json([
                     'success' => true,

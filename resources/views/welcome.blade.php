@@ -1239,9 +1239,19 @@
                                 <div>
                                     <label class="block text-sm font-bold text-[#8B5E3C] mb-1">Alamat Lengkap</label>
                                     <textarea id="swal-input3" class="swal2-textarea w-full m-0 rounded-xl border-[#8B5E3C]/20" style="height: 100px;" placeholder="Jl. Mawar No. 123, Jakarta"></textarea>
-                                    <input type="hidden" id="swal-input-lat">
-                                    <input type="hidden" id="swal-input-lng">
                                 </div>
+                                <div class="flex items-center gap-2 p-2 bg-[#F8F4ED] rounded-xl border border-[#8B5E3C]/10">
+                                    <input type="checkbox" id="swal-input-preorder" class="rounded text-[#8B5E3C] focus:ring-[#D4AF37]">
+                                    <label for="swal-input-preorder" class="text-sm font-black text-[#8B5E3C] uppercase tracking-wider">📦 Pesan sebagai Pre-Order?</label>
+                                </div>
+                                <div id="delivery-date-container" class="hidden">
+                                    <label class="block text-sm font-bold text-[#8B5E3C] mb-1">Tanggal & Jam Pengiriman</label>
+                                    <input type="datetime-local" id="swal-input-delivery" class="swal2-input w-full m-0 rounded-xl border-[#8B5E3C]/20">
+                                    <p class="text-[10px] text-[#8B5E3C]/60 mt-1 uppercase tracking-widest font-bold">*Khusus Pre-Order, pesanan akan disiapkan sesuai jadwal ini.</p>
+                                </div>
+                                <input type="hidden" id="swal-input-lat">
+                                <input type="hidden" id="swal-input-lng">
+                            </div>
                             </div>`,
                         focusConfirm: false,
                         showCancelButton: true,
@@ -1307,6 +1317,23 @@
                                         'Geolocation tidak didukung browser ini.');
                                 }
                             });
+
+                            // Pre-order visibility toggle logic
+                            setTimeout(() => {
+                                const preorderCheckbox = document.getElementById(
+                                    'swal-input-preorder');
+                                const deliveryContainer = document.getElementById(
+                                    'delivery-date-container');
+                                if (preorderCheckbox && deliveryContainer) {
+                                    preorderCheckbox.addEventListener('change', (e) => {
+                                        if (e.target.checked) {
+                                            deliveryContainer.classList.remove('hidden');
+                                        } else {
+                                            deliveryContainer.classList.add('hidden');
+                                        }
+                                    });
+                                }
+                            }, 100);
                         },
                         preConfirm: () => {
                             const name = document.getElementById('swal-input1').value;
@@ -1314,9 +1341,16 @@
                             const address = document.getElementById('swal-input3').value;
                             const lat = document.getElementById('swal-input-lat').value;
                             const lng = document.getElementById('swal-input-lng').value;
+                            const is_preorder = document.getElementById('swal-input-preorder').checked;
+                            const delivery_date = document.getElementById('swal-input-delivery').value;
 
                             if (!name || !phone || !address) {
                                 Swal.showValidationMessage('Semua data harus diisi');
+                                return false;
+                            }
+                            if (is_preorder && !delivery_date) {
+                                Swal.showValidationMessage(
+                                    'Silakan pilih tanggal pengiriman untuk Pre-Order');
                                 return false;
                             }
                             return {
@@ -1324,7 +1358,9 @@
                                 phone,
                                 address,
                                 lat,
-                                lng
+                                lng,
+                                is_preorder,
+                                delivery_date
                             };
                         }
                     });
@@ -1354,79 +1390,41 @@
                                     voucher_code: this.appliedVoucher,
                                     payment_method: this.selectedPayment,
                                     latitude: formValues.lat,
-                                    longitude: formValues.lng
+                                    longitude: formValues.lng,
+                                    is_preorder: formValues.is_preorder,
+                                    delivery_date: formValues.delivery_date
                                 })
                             });
 
                             const result = await response.json();
 
                             if (result.success) {
-                                // Prepare WhatsApp Message for secondary notification (optional but good)
-                                let message = `*Konfirmasi Pesanan #${result.order_number}*\n\n`;
-                                message += `*Nama:* ${formValues.name}\n`;
-                                message += `*Phone:* ${formValues.phone}\n\n`;
-                                message += `*Item:* \n`;
-                                this.cart.forEach(item => {
-                                    message += `- ${item.name} (${item.quantity}x)\n`;
-                                });
-                                message += `\n*Total:* ${this.formatPrice(this.totalPrice)}\n\n`;
-                                message += `Lanjutkan ke WhatsApp untuk tanya-tanya?`;
-
-                                const waUrl = `https://wa.me/6281234567890?text=${encodeURIComponent(message)}`;
-
                                 Swal.fire({
                                     title: '{{ __('Order placed successfully!') }}',
                                     html: `
                                         <div class="text-center">
                                             <p class="mb-4 text-[#6B4F3A]">${'{{ __('Order Number') }}'}: <span class="font-black text-[#D4AF37]">${result.order_number}</span></p>
-                                            <div class="flex flex-col gap-3">
-                                                <a href="${result.invoice_url}" id="download-invoice-btn" target="_blank" class="flex items-center justify-center px-6 py-4 bg-[#8B5E3C] text-white rounded-2xl font-bold hover:bg-[#D4AF37] transition-all shadow-lg shadow-[#8B5E3C]/20">
-                                                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                                    </svg>
-                                                    ${'{{ __('Unduh Invoice (PDF)') }}'}
-                                                </a>
-                                                <p class="text-[10px] text-[#8B5E3C]/60 uppercase tracking-widest font-bold">${'{{ __('Save this invoice for tracking via QR Code') }}'}</p>
-                                            </div>
-                                            <div id="after-download-actions" class="hidden mt-6 pt-6 border-t border-[#8B5E3C]/10 flex flex-col gap-3">
-                                               <p class="text-sm font-medium text-green-600 mb-2 flex items-center justify-center gap-2">
-                                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                                                    Invoice Berhasil Diunduh
-                                               </p>
-                                            </div>
+                                            <p class="text-sm text-[#8B5E3C]/80 mb-2">Terima kasih telah memesan! Pesanan Kakak sedang dalam antrean untuk diproses.</p>
+                                            <p class="text-[10px] text-[#8B5E3C]/60 uppercase tracking-widest font-bold">Simpan nomor pesanan Kakak untuk pelacakan.</p>
                                         </div>
                                     `,
                                     icon: 'success',
-                                    allowOutsideClick: false,
-                                    allowEscapeKey: false,
-                                    showConfirmButton: false,
-                                    showCancelButton: false,
-                                    confirmButtonText: '{{ __('Lanjutkan ke WhatsApp') }}',
-                                    cancelButtonText: '{{ __('Close') }}',
-                                    confirmButtonColor: '#25D366',
+                                    showConfirmButton: true,
+                                    showCancelButton: true,
+                                    confirmButtonText: '{{ __('Unduh Invoice') }}',
+                                    cancelButtonText: '{{ __('Tutup') }}',
+                                    confirmButtonColor: '#8B5E3C',
+                                    cancelButtonColor: '#d1d5db',
+                                    buttonsStyling: true,
                                     customClass: {
                                         popup: 'rounded-[2.5rem]',
-                                        confirmButton: 'rounded-xl px-6 py-3 font-bold',
-                                        cancelButton: 'rounded-xl px-6 py-3 font-bold'
+                                        confirmButton: 'rounded-xl px-6 py-3 font-bold order-2',
+                                        cancelButton: 'rounded-xl px-6 py-3 font-bold text-gray-700 order-1'
                                     },
-                                    didOpen: () => {
-                                        const btn = document.getElementById('download-invoice-btn');
-                                        btn.addEventListener('click', () => {
-                                            // Show the swal action buttons after a small delay
-                                            setTimeout(() => {
-                                                Swal.update({
-                                                    showConfirmButton: true,
-                                                    showCancelButton: true
-                                                });
-                                                document.getElementById(
-                                                        'after-download-actions').classList
-                                                    .remove('hidden');
-                                            }, 1000);
-                                        });
-                                    }
+                                    reverseButtons: true
                                 }).then((swalResult) => {
                                     if (swalResult.isConfirmed) {
-                                        window.open(waUrl, '_blank');
+                                        window.open(result.invoice_url, '_blank');
                                     }
                                 });
 
@@ -1434,7 +1432,7 @@
                                 this.saveCart();
                                 this.showCart = false;
                             } else {
-                                const errorData = await response.json();
+                                const errorData = result; // result is already parsed
                                 let errorMessage = 'Gagal membuat pesanan';
                                 if (errorData.message) {
                                     if (typeof errorData.message === 'object') {
