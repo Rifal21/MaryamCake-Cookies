@@ -16,19 +16,41 @@
             {{ __('Back to Orders List') }}
         </a>
 
-        <div class="flex items-center space-x-3">
-            <span
-                class="text-xs font-black uppercase tracking-widest text-[#8B5E3C]/50">{{ __('Order Status:') }}</span>
-            <span
-                class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider
+        <div class="flex items-center space-x-4">
+            <a href="{{ route('order.invoice', $order->order_number) }}"
+                class="inline-flex items-center px-4 py-2 bg-[#8B5E3C] text-white text-xs font-bold rounded-xl hover:bg-[#6A462D] transition-colors shadow-sm">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                {{ __('Download Invoice') }}
+            </a>
+            <form action="{{ route('admin.orders.destroy', $order) }}" method="POST" id="delete-order-form">
+                @csrf @method('DELETE')
+                <button type="button" onclick="confirmDeleteOrder()"
+                    class="inline-flex items-center px-4 py-2 bg-red-50 text-red-600 text-xs font-bold rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-sm border border-red-100">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    {{ __('Delete Order') }}
+                </button>
+            </form>
+            <div class="h-8 w-px bg-[#8B5E3C]/10 mx-2"></div>
+            <div class="flex items-center space-x-3">
+                <span
+                    class="text-xs font-black uppercase tracking-widest text-[#8B5E3C]/50">{{ __('Order Status:') }}</span>
+                <span
+                    class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider
                 {{ $order->status == 'pending' ? 'bg-yellow-100 text-yellow-700' : '' }}
                 {{ $order->status == 'processing' ? 'bg-blue-100 text-blue-700' : '' }}
                 {{ $order->status == 'shipping' ? 'bg-purple-100 text-purple-700' : '' }}
                 {{ $order->status == 'completed' ? 'bg-green-100 text-green-700' : '' }}
                 {{ $order->status == 'cancelled' ? 'bg-red-100 text-red-700' : '' }}
             ">
-                {{ __(ucfirst($order->status)) }}
-            </span>
+                    {{ __(ucfirst($order->status)) }}
+                </span>
+            </div>
         </div>
     </div>
 
@@ -38,6 +60,22 @@
             <div class="p-8 border-b border-[#8B5E3C]/5 bg-gray-50/30">
                 <h3 class="text-xl font-black text-[#4A3728]">{{ __('Order Information') }} <span
                         class="text-[#D4AF37]">#{{ $order->order_number }}</span></h3>
+                @if ($order->is_preorder)
+                    <div class="mt-4 flex items-center gap-4 p-4 bg-orange-50 border border-orange-200 rounded-2xl">
+                        <div
+                            class="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center text-white text-2xl">
+                            📦
+                        </div>
+                        <div>
+                            <span
+                                class="block text-[10px] font-black uppercase tracking-widest text-orange-600/60">{{ __('Pre-Order Status') }}</span>
+                            <span
+                                class="block font-black text-orange-700">{{ __('Scheduled for Delivery on:') }}</span>
+                            <span
+                                class="text-lg font-black text-[#4A3728]">{{ \Carbon\Carbon::parse($order->delivery_date)->format('d M Y - H:i') }}</span>
+                        </div>
+                    </div>
+                @endif
             </div>
             <div class="p-8">
                 <table class="w-full">
@@ -186,7 +224,8 @@
             </div>
             <div class="space-y-4 relative z-10">
                 <div class="p-4 rounded-2xl bg-gray-50 flex items-center">
-                    <svg class="w-5 h-5 text-[#D4AF37] mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-[#D4AF37] mr-3" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
@@ -205,7 +244,8 @@
             </div>
 
             <div class="mt-8">
-                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $order->customer_phone) }}" target="_blank"
+                <a href="https://wa.me/{{ preg_replace('/^0/', '62', preg_replace('/[^0-9]/', '', $order->customer_phone)) }}"
+                    target="_blank"
                     class="w-full flex items-center justify-center p-4 rounded-2xl bg-green-500 text-white font-bold shadow-lg shadow-green-500/20 hover:scale-[1.03] transition-all">
                     <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                         <path
@@ -261,6 +301,18 @@
                             {{ __('Cancelled') }}
                         </option>
                     </select>
+                </div>
+
+                <div class="flex items-center gap-3 py-2">
+                    <div class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="notify_wa" id="notify_wa" value="1" class="sr-only peer"
+                            checked>
+                        <div
+                            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#25D366]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#25D366]">
+                        </div>
+                        <label for="notify_wa"
+                            class="ml-3 text-sm font-bold text-[#4A3728]">{{ __('Kirim Notifikasi WA ke Pelanggan') }}</label>
+                    </div>
                 </div>
 
                 <div id="tracking-fields"
@@ -362,6 +414,24 @@
                     confirmButtonColor: '#D4AF37'
                 });
             }
+        }
+
+        function confirmDeleteOrder() {
+            Swal.fire({
+                title: '{{ __('Hapus Pesanan?') }}',
+                text: '{{ __('Pesanan akan dipindahkan ke tempat sampah (Soft Delete).') }}',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#8B5E3C',
+                confirmButtonText: '{{ __('Ya, Hapus!') }}',
+                cancelButtonText: '{{ __('Batal') }}',
+                borderRadius: '1.5rem'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-order-form').submit();
+                }
+            })
         }
     </script>
 </x-app-layout>

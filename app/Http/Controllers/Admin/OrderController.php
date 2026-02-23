@@ -14,8 +14,15 @@ class OrderController extends Controller
         return view('admin.orders.index', compact('orders'));
     }
 
-    public function show(Order $order)
+    public function trashed()
     {
+        $orders = Order::onlyTrashed()->latest()->paginate(10);
+        return view('admin.orders.index', compact('orders'))->with('mode', 'trashed');
+    }
+
+    public function show($id)
+    {
+        $order = Order::withTrashed()->findOrFail($id);
         $order->load('items.product');
         return view('admin.orders.show', compact('order'));
     }
@@ -54,6 +61,29 @@ class OrderController extends Controller
             }
         });
 
+        // Send Notification if requested
+        if ($request->boolean('notify_wa')) {
+            \App\Jobs\SendWhatsAppStatusNotification::dispatch($order);
+        }
+
         return back()->with('success', 'Order status updated. Stock has been adjusted automatically.');
+    }
+
+    public function destroy($id)
+    {
+        $order = Order::withTrashed()->findOrFail($id);
+        if ($order->trashed()) {
+            $order->forceDelete();
+            return redirect()->route('admin.orders.trashed')->with('success', 'Order permanently deleted.');
+        }
+        $order->delete();
+        return redirect()->route('admin.orders.index')->with('success', 'Order soft deleted successfully.');
+    }
+
+    public function restore($id)
+    {
+        $order = Order::onlyTrashed()->findOrFail($id);
+        $order->restore();
+        return redirect()->route('admin.orders.index')->with('success', 'Order restored successfully.');
     }
 }

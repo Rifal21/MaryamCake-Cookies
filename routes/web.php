@@ -52,9 +52,12 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::delete('/products/{product}', [\App\Http\Controllers\Admin\ProductController::class, 'destroy'])->name('products.destroy');
 
     // Orders
+    Route::get('/orders/trashed', [\App\Http\Controllers\Admin\OrderController::class, 'trashed'])->name('orders.trashed');
     Route::get('/orders', [\App\Http\Controllers\Admin\OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [\App\Http\Controllers\Admin\OrderController::class, 'show'])->name('orders.show');
     Route::patch('/orders/{order}/status', [\App\Http\Controllers\Admin\OrderController::class, 'updateStatus'])->name('orders.status');
+    Route::delete('/orders/{order}', [\App\Http\Controllers\Admin\OrderController::class, 'destroy'])->name('orders.destroy');
+    Route::post('/orders/{order}/restore', [\App\Http\Controllers\Admin\OrderController::class, 'restore'])->name('orders.restore');
 
     // Categories
     Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class)->except(['show']);
