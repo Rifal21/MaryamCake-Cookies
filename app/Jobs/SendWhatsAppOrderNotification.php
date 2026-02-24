@@ -62,6 +62,28 @@ class SendWhatsAppOrderNotification implements ShouldQueue
             $message .= "Terima kasih telah mempercayai toko kami! 🙏🍰";
 
             $waService->sendMessage($order->customer_phone, $message);
+
+            // Notify Admin
+            $adminPhone = env('WHATSAPP_ADMIN_PHONE');
+            if ($adminPhone) {
+                $adminMessage = "🔔 *PESANAN BARU MASUK!* 🔔\n\n";
+                $adminMessage .= "Ada pesanan baru nih kak! Berikut detailnya:\n\n";
+                $adminMessage .= "👤 *Pelanggan:* {$order->customer_name}\n";
+                $adminMessage .= "📞 *No. HP:* {$order->customer_phone}\n";
+                $adminMessage .= "📍 *Alamat:* {$order->address}\n\n";
+                $adminMessage .= "📋 *Item yang diorder:*\n{$itemsList}\n";
+                $adminMessage .= "💰 *Total:* *Rp " . number_format($order->total_price, 0, ',', '.') . "*\n";
+                $adminMessage .= "💳 *Metode:* {$order->payment_method_name}\n";
+                
+                if ($order->is_preorder) {
+                    $deliveryDate = Carbon::parse($order->delivery_date)->format('d M Y - H:i');
+                    $adminMessage .= "📦 *Jadwal Pengiriman:* {$deliveryDate}\n";
+                }
+
+                $adminMessage .= "\nSegera diproses ya kak! 🚀";
+
+                $waService->sendMessage($adminPhone, $adminMessage);
+            }
             
         } catch (\Exception $e) {
             Log::error("Failed to send WA in Job for order {$this->order->order_number}: " . $e->getMessage());
